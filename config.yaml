@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: codeserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: codeserver
+  template:
+    metadata:
+      labels:
+        app: codeserver
+    spec:
+      containers:
+      - name: codeserver
+        image: linuxserver/code-server
+        env:
+        - name: PASSWORD
+          value: password
+        - name: SUDO_PASSWORD
+          value: password
+        - name: PROXY_DOMAIN
+          value: sakthisaran.site
+        - name: DEFAULT_WORKSPACE
+          value: /config/workspace
+        - name: VSCODE_PROXY_URI
+          value: /code/proxy/{{port}}
+
+        resources:
+          limits:
+            memory: "800Mi"
+            cpu: "400m"
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: codeserverconfig
+          mountPath: /config
+      volumes:
+      - name: codeserverconfig
+        persistentVolumeClaim:
+          claimName: codeserver-persistent-volumeclaim
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: codeserverservice
+spec:
+  type: LoadBalancer
+  selector:
+    app: codeserver
+  ports:
+  - port: 80
+    targetPort: 80
+
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: codeserver-persistent-volume
+spec:
+  capacity:
+    storage: 60Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteMany
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: codeserver-storage-class
+  hostPath:
+    path: /home/sakthi/kubestorage/codeserver
+
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: codeserver-persistent-volumeclaim
+spec:
+  storageClassName: codeserver-storage-class
+  resources:
+    requests:
+      storage: 60Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteMany
+
+
