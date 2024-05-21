@@ -21,7 +21,7 @@ spec:
         - name: SUDO_PASSWORD
           value: password
         - name: PROXY_DOMAIN
-          value: sakthisaran.site
+          value: sakthisaran.site/code
         - name: DEFAULT_WORKSPACE
           value: /config/workspace
         - name: VSCODE_PROXY_URI
