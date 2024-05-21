@@ -85,5 +85,3 @@ spec:
   volumeMode: Filesystem
   accessModes:
   - ReadWriteMany
-
-
